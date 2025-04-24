@@ -84,10 +84,20 @@ jobs:
           # Copy binaries
           sudo cp prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/prometheus /usr/local/bin/
           sudo cp prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/promtool /usr/local/bin/
+            # Copy configs (handling both directory structures)
+          if [ -d "prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/consoles" ]; then
+            sudo cp -r prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/consoles /etc/prometheus/
+          else
+            echo "Consoles directory not found, creating empty directory"
+            sudo mkdir -p /etc/prometheus/consoles
+          fi
           
-          # Copy configs
-          sudo cp -r prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/consoles /etc/prometheus/
-          sudo cp -r prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/console_libraries /etc/prometheus/
+          if [ -d "prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/console_libraries" ]; then
+            sudo cp -r prometheus-${{ steps.prometheus_version.outputs.VERSION }}.linux-amd64/console_libraries /etc/prometheus/
+          else
+            echo "Console_libraries directory not found, creating empty directory"
+            sudo mkdir -p /etc/prometheus/console_libraries
+          fi
           
           # Create default config
           sudo tee /etc/prometheus/prometheus.yml > /dev/null << EOF
